@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 public class servlet_pasajeros extends HttpServlet {
 
     ControllerPasajeros cpasajeros = new ControllerPasajeros();
-    Pasajeros pasajero = new Pasajeros();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -68,10 +67,11 @@ public class servlet_pasajeros extends HttpServlet {
         String nacionalidad = request.getParameter("txtNacionalidad");
         String pasaporte = request.getParameter("txtPasaporte");
 
-        // Poblar entidad
-        pasajero.setNombrePasajero(nullIfEmpty(nombre));
-        pasajero.setNacionalidad(nullIfEmpty(nacionalidad));
-        pasajero.setPasaporte(nullIfEmpty(pasaporte));
+    // Poblar entidad por request
+    Pasajeros pasajero = new Pasajeros();
+    pasajero.setNombrePasajero(nullIfEmpty(nombre));
+    pasajero.setNacionalidad(nullIfEmpty(nacionalidad));
+    pasajero.setPasaporte(nullIfEmpty(pasaporte));
 
         String btnAgregar = request.getParameter("btnAgregar");
         String btnUpdate = request.getParameter("btnUpdate");

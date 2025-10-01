@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
-    <!-- Define Persistence Unit -->
-    <persistence-unit name="my_persistence_unit">
-        
+<persistence version="2.2"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+    <!-- Persistence Unit using EclipseLink and MySQL (RESOURCE_LOCAL). Update URL/USER/PASSWORD as needed. -->
+    <persistence-unit name="my_persistence_unit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>Entity.Vuelos</class>
+        <class>Entity.Pasajeros</class>
+        <class>Entity.Reservaciones</class>
+        <class>Entity.DetalleReservacion</class>
+
+        <properties>
+            <!-- JDBC config: replace with your DB details -->
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/lab02?useSSL=false&amp;serverTimezone=UTC"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+
+            <!-- EclipseLink tuning -->
+            <property name="eclipselink.logging.level" value="INFO"/>
+            <property name="eclipselink.weaving" value="false"/>
+            <property name="eclipselink.ddl-generation" value="none"/>
+        </properties>
     </persistence-unit>
 </persistence>

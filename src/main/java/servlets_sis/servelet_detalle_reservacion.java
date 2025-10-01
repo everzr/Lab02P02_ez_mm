@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 public class servelet_detalle_reservacion extends HttpServlet {
 
     ControllerDetalleReservacion cdetalle_reservaciones = new ControllerDetalleReservacion();
-    DetalleReservacion detallereservacion = new DetalleReservacion();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -66,8 +65,9 @@ public class servelet_detalle_reservacion extends HttpServlet {
 
         String asiento = request.getParameter("txtAsiento");
         String clase = request.getParameter("txtClase");
-        detallereservacion.setAsiento(asiento != null && !asiento.isEmpty() ? asiento : null);
-        detallereservacion.setClase(clase != null && !clase.isEmpty() ? clase : null);
+    DetalleReservacion detallereservacion = new DetalleReservacion();
+    detallereservacion.setAsiento(asiento != null && !asiento.isEmpty() ? asiento : null);
+    detallereservacion.setClase(clase != null && !clase.isEmpty() ? clase : null);
 
         String btnAgregar = request.getParameter("btnAgregar");
         String btnUpdate = request.getParameter("btnUpdate");

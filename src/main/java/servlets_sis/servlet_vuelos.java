@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 public class servlet_vuelos extends HttpServlet {
 
     ControllerVuelos cvuelos = new ControllerVuelos();
-    Vuelos vuelo = new Vuelos();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -105,16 +104,17 @@ public class servlet_vuelos extends HttpServlet {
             horaLlegada = Time.valueOf(lt);
         }
 
-        // Poblar entidad
-        vuelo.setNumeroVuelo(nullIfEmpty(numeroVuelo));
-        vuelo.setAerolinea(nullIfEmpty(aerolinea));
-        vuelo.setOrigen(nullIfEmpty(origen));
-        vuelo.setDestino(nullIfEmpty(destino));
-        if (fechaSalida != null) vuelo.setFechaSalida(fechaSalida);
-        if (horaSalida != null) vuelo.setHoraSalida(horaSalida);
-        if (fechaLlegada != null) vuelo.setFechaLlegada(fechaLlegada);
-        if (horaLlegada != null) vuelo.setHoraLlegada(horaLlegada);
-        vuelo.setAvion(nullIfEmpty(avion));
+    // Poblar entidad (por request)
+    Vuelos vuelo = new Vuelos();
+    vuelo.setNumeroVuelo(nullIfEmpty(numeroVuelo));
+    vuelo.setAerolinea(nullIfEmpty(aerolinea));
+    vuelo.setOrigen(nullIfEmpty(origen));
+    vuelo.setDestino(nullIfEmpty(destino));
+    if (fechaSalida != null) vuelo.setFechaSalida(fechaSalida);
+    if (horaSalida != null) vuelo.setHoraSalida(horaSalida);
+    if (fechaLlegada != null) vuelo.setFechaLlegada(fechaLlegada);
+    if (horaLlegada != null) vuelo.setHoraLlegada(horaLlegada);
+    vuelo.setAvion(nullIfEmpty(avion));
 
         String btnAgregar = request.getParameter("btnAgregar");
         String btnUpdate = request.getParameter("btnUpdate");

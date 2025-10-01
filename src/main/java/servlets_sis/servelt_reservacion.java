@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 public class servelt_reservacion extends HttpServlet {
 
     ControllerReservaciones creservaciones = new ControllerReservaciones();
-    Reservaciones reservacion = new Reservaciones();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -74,7 +73,8 @@ public class servelt_reservacion extends HttpServlet {
             LocalDate ld = LocalDate.parse(fechaReservacionStr, fFecha);
             fechaReservacion = Date.valueOf(ld);
         }
-        if (fechaReservacion != null) reservacion.setFechaReservacion(fechaReservacion);
+    Reservaciones reservacion = new Reservaciones();
+    if (fechaReservacion != null) reservacion.setFechaReservacion(fechaReservacion);
 
         String btnAgregar = request.getParameter("btnAgregar");
         String btnUpdate = request.getParameter("btnUpdate");
