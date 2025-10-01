@@ -20,7 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "reservaciones")
+@Table(name = "Reservaciones")
 @NamedQueries({
     @NamedQuery(name = "Reservaciones.findAll", query = "SELECT r FROM Reservaciones r"),
     @NamedQuery(name = "Reservaciones.findByIDReservacion", query = "SELECT r FROM Reservaciones r WHERE r.iDReservacion = :iDReservacion"),

@@ -57,4 +57,25 @@ public class DetalleReservacionJpaController implements Serializable {
     }
     public DetalleReservacion findDetalleReservacion(Integer id) { EntityManager em = getEntityManager(); try { return em.find(DetalleReservacion.class, id); } finally { em.close(); } }
     public int getDetalleReservacionCount() { EntityManager em = getEntityManager(); try { javax.persistence.criteria.CriteriaBuilder cb = em.getCriteriaBuilder(); CriteriaQuery<Long> cq = cb.createQuery(Long.class); Root<DetalleReservacion> rt = cq.from(DetalleReservacion.class); cq.select(cb.count(rt)); TypedQuery<Long> q = em.createQuery(cq); return q.getSingleResult().intValue(); } finally { em.close(); } }
+
+    /**
+     * Verifica si un asiento ya está ocupado en un vuelo dado. Si excludeReservacionId no es nulo,
+     * excluye esa reservación (útil en edición).
+     */
+    public boolean existsByVueloAndAsiento(Integer vueloId, String asiento, Integer excludeReservacionId) {
+        if (vueloId == null || asiento == null || asiento.trim().isEmpty()) return false;
+        final String seat = asiento.trim().toUpperCase();
+        EntityManager em = getEntityManager();
+        try {
+            String jpql = "SELECT COUNT(d) FROM DetalleReservacion d " +
+                          "WHERE d.iDVuelo.iDVuelo = :vid AND UPPER(d.asiento) = :as" +
+                          (excludeReservacionId != null ? " AND d.iDReservacion.iDReservacion <> :rid" : "");
+            javax.persistence.Query q = em.createQuery(jpql);
+            q.setParameter("vid", vueloId);
+            q.setParameter("as", seat);
+            if (excludeReservacionId != null) q.setParameter("rid", excludeReservacionId);
+            Number n = (Number) q.getSingleResult();
+            return n != null && n.intValue() > 0;
+        } finally { em.close(); }
+    }
 }

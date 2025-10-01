@@ -18,7 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "vuelos")
+@Table(name = "Vuelos")
 @NamedQueries({
     @NamedQuery(name = "Vuelos.findAll", query = "SELECT v FROM Vuelos v"),
     @NamedQuery(name = "Vuelos.findByIDVuelo", query = "SELECT v FROM Vuelos v WHERE v.iDVuelo = :iDVuelo"),

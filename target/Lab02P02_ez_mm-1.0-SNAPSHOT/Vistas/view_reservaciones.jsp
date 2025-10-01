@@ -1,12 +1,14 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@include file="header.jsp"%>
 
 <div class="container-fluid">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="breadcrumb-custom">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="index.jsp">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="${pageContext.request.contextPath}/index.jsp">Inicio</a></li>
             <li class="breadcrumb-item active" aria-current="page">Mis Reservaciones</li>
         </ol>
     </nav>
@@ -19,7 +21,7 @@
             </h2>
             <p class="text-muted mb-0">Gestiona todas tus reservaciones de vuelo de manera fácil y rápida</p>
         </div>
-        <a href="servelt_reservacion?accion=add" class="btn btn-warning btn-lg text-white">
+        <a href="${pageContext.request.contextPath}/servelt_reservacion?accion=add" class="btn btn-warning btn-lg text-white">
             <i class="fas fa-plus me-2"></i>Nueva Reservación
         </a>
     </div>
@@ -28,8 +30,15 @@
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <h5 class="card-title mb-3"><i class="fas fa-search me-2"></i>Buscar Reservaciones</h5>
-            <form class="row g-3" method="GET" action="servelt_reservacion">
+            <form class="row g-3" method="GET" action="${pageContext.request.contextPath}/servelt_reservacion" accept-charset="UTF-8">
                 <input type="hidden" name="accion" value="con">
+                <div class="col-md-4">
+                    <label class="form-label">Búsqueda rápida</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" name="q" placeholder="Código (RSV123), pasajero o vuelo" value="${param.q}">
+                    </div>
+                </div>
                 <div class="col-md-3">
                     <label class="form-label">Código de Reservación</label>
                     <div class="input-group">
@@ -38,13 +47,21 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select" name="estado">
-                        <option value="">Todos los estados</option>
-                        <option value="confirmada" ${param.estado == 'confirmada' ? 'selected' : ''}>Confirmada</option>
-                        <option value="pendiente" ${param.estado == 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                        <option value="cancelada" ${param.estado == 'cancelada' ? 'selected' : ''}>Cancelada</option>
-                        <option value="completada" ${param.estado == 'completada' ? 'selected' : ''}>Completada</option>
+                    <label class="form-label">Pasajero</label>
+                    <select class="form-select" name="pasajeroId">
+                        <option value="">Todos</option>
+                        <c:forEach var="p" items="${pasajeros}">
+                            <option value="${p.IDPasajero}" ${param.pasajeroId != null && param.pasajeroId == (p.IDPasajero).toString() ? 'selected' : ''}>${p.nombrePasajero}</option>
+                        </c:forEach>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Vuelo</label>
+                    <select class="form-select" name="vueloId">
+                        <option value="">Todos</option>
+                        <c:forEach var="v" items="${vuelos}">
+                            <option value="${v.IDVuelo}" ${param.vueloId != null && param.vueloId == (v.IDVuelo).toString() ? 'selected' : ''}>${v.numeroVuelo} - ${v.origen} → ${v.destino}</option>
+                        </c:forEach>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -59,7 +76,7 @@
                     <button type="submit" class="btn btn-warning me-2 text-white">
                         <i class="fas fa-search me-1"></i>Buscar
                     </button>
-                    <a href="servelt_reservacion" class="btn btn-outline-secondary">
+                    <a href="${pageContext.request.contextPath}/servelt_reservacion" class="btn btn-outline-secondary">
                         <i class="fas fa-times"></i>
                     </a>
                 </div>
@@ -69,12 +86,37 @@
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
+        <c:set var="total" value="${empty reservaVMs ? 0 : reservaVMs.size()}"/>
+        <c:set var="conVuelo" value="0"/>
+        <c:set var="pasajerosSet" value="|"/>
+        <c:set var="rutasSet" value="|"/>
+        <c:forEach var="vmStat" items="${reservaVMs}">
+            <c:if test="${vmStat.numeroVuelo != null}">
+                <c:set var="conVuelo" value="${conVuelo + 1}"/>
+            </c:if>
+            <c:if test="${not empty vmStat.nombrePasajero}">
+                <c:set var="candP" value="|${vmStat.nombrePasajero}|"/>
+                <c:if test="${not fn:contains(pasajerosSet, candP)}">
+                    <c:set var="pasajerosSet" value="${pasajerosSet}${candP}"/>
+                </c:if>
+            </c:if>
+            <c:if test="${not empty vmStat.origen and not empty vmStat.destino}">
+                <c:set var="candR" value="|${vmStat.origen}-${vmStat.destino}|"/>
+                <c:if test="${not fn:contains(rutasSet, candR)}">
+                    <c:set var="rutasSet" value="${rutasSet}${candR}"/>
+                </c:if>
+            </c:if>
+        </c:forEach>
+    <c:set var="pipesP" value="${fn:length(pasajerosSet) - fn:length(fn:replace(pasajerosSet, '|', ''))}"/>
+    <c:set var="pasajerosUnicos" value="${(pipesP - 1) / 2}"/>
+    <c:set var="pipesR" value="${fn:length(rutasSet) - fn:length(fn:replace(rutasSet, '|', ''))}"/>
+    <c:set var="rutasUnicas" value="${(pipesR - 1) / 2}"/>
         <div class="col-md-3">
             <div class="card bg-warning text-white h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-ticket-alt fa-2x mb-2"></i>
                     <h5 class="card-title">Total Reservaciones</h5>
-                    <h3 class="mb-0">${empty reservaciones ? '0' : reservaciones.size()}</h3>
+                    <h3 class="mb-0">${total}</h3>
                 </div>
             </div>
         </div>
@@ -82,34 +124,26 @@
             <div class="card bg-success text-white h-100">
                 <div class="card-body text-center">
                     <i class="fas fa-check-circle fa-2x mb-2"></i>
-                    <h5 class="card-title">Confirmadas</h5>
-                    <h3 class="mb-0">
-                        <c:set var="confirmadas" value="0"/>
-                        <c:forEach var="r" items="${reservaciones}">
-                            <c:if test="${r.estado == 'confirmada' or empty r.estado}">
-                                <c:set var="confirmadas" value="${confirmadas + 1}"/>
-                            </c:if>
-                        </c:forEach>
-                        ${confirmadas}
-                    </h3>
+                    <h5 class="card-title">Con Vuelo Asignado</h5>
+                    <h3 class="mb-0">${conVuelo}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-info text-white h-100">
                 <div class="card-body text-center">
-                    <i class="fas fa-clock fa-2x mb-2"></i>
-                    <h5 class="card-title">Pendientes</h5>
-                    <h3 class="mb-0">2</h3>
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h5 class="card-title">Pasajeros Únicos</h5>
+                    <h3 class="mb-0">${pasajerosUnicos < 0 ? 0 : pasajerosUnicos}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body text-center">
-                    <i class="fas fa-plane-departure fa-2x mb-2"></i>
-                    <h5 class="card-title">Próximos Vuelos</h5>
-                    <h3 class="mb-0">5</h3>
+                    <i class="fas fa-route fa-2x mb-2"></i>
+                    <h5 class="card-title">Rutas Distintas</h5>
+                    <h3 class="mb-0">${rutasUnicas < 0 ? 0 : rutasUnicas}</h3>
                 </div>
             </div>
         </div>
@@ -120,37 +154,27 @@
         <div class="card-header bg-light">
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-list me-2"></i>Lista de Reservaciones</h5>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="exportReservations('excel')">
-                        <i class="fas fa-file-excel me-1"></i>Excel
-                    </button>
-                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="exportReservations('pdf')">
-                        <i class="fas fa-file-pdf me-1"></i>PDF
-                    </button>
-                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="printReservations()">
-                        <i class="fas fa-print me-1"></i>Imprimir
-                    </button>
-                </div>
+                <div class="text-muted small">${empty reservaVMs ? 0 : reservaVMs.size()} registros</div>
             </div>
         </div>
         <div class="card-body p-0">
-            <c:if test="${empty reservaciones}">
+            <c:if test="${empty reservaVMs}">
                 <div class="text-center py-5">
                     <i class="fas fa-ticket-alt fa-4x text-muted mb-3"></i>
                     <h4 class="text-muted mb-3">No tienes reservaciones</h4>
                     <p class="text-muted mb-4">¡Es hora de planear tu próximo viaje! Reserva tu primer vuelo ahora.</p>
                     <div class="d-flex gap-3 justify-content-center">
-                        <a href="servlet_vuelos" class="btn btn-primary btn-lg">
+                        <a href="${pageContext.request.contextPath}/servlet_vuelos" class="btn btn-primary btn-lg">
                             <i class="fas fa-search me-2"></i>Buscar Vuelos
                         </a>
-                        <a href="servelt_reservacion?accion=add" class="btn btn-warning btn-lg text-white">
+                        <a href="${pageContext.request.contextPath}/servelt_reservacion?accion=add" class="btn btn-warning btn-lg text-white">
                             <i class="fas fa-plus me-2"></i>Nueva Reservación
                         </a>
                     </div>
                 </div>
             </c:if>
             
-            <c:if test="${not empty reservaciones}">
+            <c:if test="${not empty reservaVMs}">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-dark">
@@ -182,98 +206,76 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach var="r" items="${reservaciones}" varStatus="status">
+                            <c:forEach var="vm" items="${reservaVMs}" varStatus="status">
                                 <tr class="align-middle">
                                     <td>
-                                        <input type="checkbox" class="form-check-input reservacion-checkbox" value="${r.IDReservacion}">
+                                        <input type="checkbox" class="form-check-input reservacion-checkbox" value="${vm.codigo}">
                                     </td>
                                     <td>
                                         <div class="fw-bold text-primary font-monospace">
-                                            RSV${r.IDReservacion}
+                                            RSV${vm.codigo}
                                         </div>
-                                        <small class="text-muted">#${r.IDReservacion}</small>
+                                        <small class="text-muted">#${vm.codigo}</small>
                                     </td>
                                     <td>
-                                        <div class="fw-semibold">${r.fechaReservacion}</div>
+                                        <div class="fw-semibold">
+                                            <c:choose>
+                                                <c:when test="${not empty vm.fecha}">
+                                                    <fmt:formatDate value='${vm.fecha}' pattern='dd/MM/yyyy'/>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <fmt:formatDate value='${vm.reservacion.fechaReservacion}' pattern='dd/MM/yyyy'/>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                         <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>${r.horaReservacion != null ? r.horaReservacion : '00:00'}
+                                            <i class="fas fa-clock me-1"></i>—
                                         </small>
                                     </td>
                                     <td>
                                         <div class="flight-info">
                                             <div class="fw-bold text-dark">
                                                 <i class="fas fa-plane me-1"></i>
-                                                ${r.vuelo != null ? r.vuelo.numeroVuelo : 'N/A'}
+                                                ${vm.numeroVuelo != null ? vm.numeroVuelo : 'N/A'}
                                             </div>
                                             <div class="d-flex align-items-center text-muted">
-                                                <small>${r.vuelo != null ? r.vuelo.origen : 'Origen'}</small>
+                                                <small>${vm.origen != null ? vm.origen : 'Origen'}</small>
                                                 <i class="fas fa-arrow-right mx-1"></i>
-                                                <small>${r.vuelo != null ? r.vuelo.destino : 'Destino'}</small>
+                                                <small>${vm.destino != null ? vm.destino : 'Destino'}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="passenger-info">
                                             <div class="fw-semibold">
-                                                ${r.pasajero != null ? r.pasajero.nombrePasajero : 'Pasajero no disponible'}
+                                                ${vm.nombrePasajero != null ? vm.nombrePasajero : 'Sin pasajero'}
                                             </div>
                                             <small class="text-muted">
                                                 <i class="fas fa-passport me-1"></i>
-                                                ${r.pasajero != null ? r.pasajero.pasaporte : 'N/A'}
+                                                <!-- Pasaporte no está en VM directo; se puede ampliar si es necesario -->
+                                                —
                                             </small>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="text-center">
-                                            <div class="fw-bold text-success fs-5">$${r.total != null ? r.total : '0.00'}</div>
+                                            <div class="fw-bold text-success fs-5">—</div>
                                             <small class="text-muted">USD</small>
                                         </div>
                                     </td>
                                     <td>
-                                        <c:choose>
-                                            <c:when test="${r.estado == 'confirmada' or empty r.estado}">
-                                                <span class="badge bg-success">
-                                                    <i class="fas fa-check me-1"></i>Confirmada
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${r.estado == 'pendiente'}">
-                                                <span class="badge bg-warning">
-                                                    <i class="fas fa-clock me-1"></i>Pendiente
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${r.estado == 'cancelada'}">
-                                                <span class="badge bg-danger">
-                                                    <i class="fas fa-times me-1"></i>Cancelada
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${r.estado == 'completada'}">
-                                                <span class="badge bg-info">
-                                                    <i class="fas fa-flag-checkered me-1"></i>Completada
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="badge bg-secondary">Sin estado</span>
-                                            </c:otherwise>
-                                        </c:choose>
+                                        <span class="badge bg-secondary">—</span>
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-outline-info" 
-                                                    onclick="viewReservation(${r.IDReservacion})" title="Ver detalles">
+                                            <a class="btn btn-sm btn-outline-info" 
+                                               href="${pageContext.request.contextPath}/servelt_reservacion?accion=view&id=${vm.codigo}" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
-                                            </button>
-                                            <a href="servelt_reservacion?accion=mod&id=${r.IDReservacion}" 
+                                            </a>
+                                            <a href="${pageContext.request.contextPath}/servelt_reservacion?accion=mod&id=${vm.codigo}" 
                                                class="btn btn-sm btn-outline-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-outline-success" 
-                                                    onclick="downloadTicket(${r.IDReservacion})" title="Descargar boleto">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                    onclick="cancelReservation(${r.IDReservacion})" title="Cancelar">
-                                                <i class="fas fa-ban"></i>
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -286,16 +288,16 @@
                 <div class="card-footer bg-light">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted">Mostrando ${reservaciones.size()} reservaciones</span>
+                            <span class="text-muted">Mostrando ${reservaVMs.size()} reservaciones</span>
                         </div>
                         <div>
                             <button class="btn btn-outline-danger btn-sm me-2" onclick="cancelSelectedReservations()" id="cancelSelectedBtn" style="display: none;">
                                 <i class="fas fa-ban me-1"></i>Cancelar Seleccionadas
                             </button>
-                            <a href="servlet_vuelos" class="btn btn-primary btn-sm me-2">
+                            <a href="${pageContext.request.contextPath}/servlet_vuelos" class="btn btn-primary btn-sm me-2">
                                 <i class="fas fa-search me-1"></i>Buscar Vuelos
                             </a>
-                            <a href="servelt_reservacion?accion=add" class="btn btn-warning btn-sm text-white">
+                            <a href="${pageContext.request.contextPath}/servelt_reservacion?accion=add" class="btn btn-warning btn-sm text-white">
                                 <i class="fas fa-plus me-1"></i>Nueva Reservación
                             </a>
                         </div>
