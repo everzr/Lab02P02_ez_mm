@@ -5,6 +5,8 @@ package servlets_sis;
 
 import Entity.ControllerPasajeros;
 import Entity.Pasajeros;
+import Controladores.ControladoraPersistencia;
+import Entity.Reservaciones;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.util.List;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 public class servlet_pasajeros extends HttpServlet {
 
     ControllerPasajeros cpasajeros = new ControllerPasajeros();
+    ControladoraPersistencia cp = new ControladoraPersistencia();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -77,8 +80,17 @@ public class servlet_pasajeros extends HttpServlet {
                 request.getRequestDispatcher("Vistas/upd_pasajeros.jsp").forward(request, response);
                 break;
             case "del":
-                this.cpasajeros.eliminarPasajero(id);
-                response.sendRedirect("servlet_pasajeros?accion=con");
+                if (hasReservationsForPassenger(id)) {
+                    request.setAttribute("error", "No se puede eliminar el pasajero porque tiene reservaciones asociadas.");
+                    List<Pasajeros> refreshed = this.cpasajeros.traerListaPasajeros();
+                    request.setAttribute("pasajeros", refreshed);
+                    request.getRequestDispatcher("Vistas/view_pasajeros.jsp").forward(request, response);
+                } else {
+                    this.cpasajeros.eliminarPasajero(id);
+                    List<Pasajeros> refreshed = this.cpasajeros.traerListaPasajeros();
+                    request.setAttribute("pasajeros", refreshed);
+                    request.getRequestDispatcher("Vistas/view_pasajeros.jsp").forward(request, response);
+                }
                 return;
             case "add":
                 List<Pasajeros> consultaUltimos = this.cpasajeros.consultaUltimosPasajeros(5, 0);
@@ -212,5 +224,18 @@ public class servlet_pasajeros extends HttpServlet {
         // Remove diacritics (á -> a, ñ -> n, etc.)
         String normalized = Normalizer.normalize(lower, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
         return normalized;
+    }
+
+    private boolean hasReservationsForPassenger(int pasajeroId) {
+        try {
+            List<Reservaciones> rs = cp.traerListaReservaciones();
+            if (rs == null) return false;
+            for (Reservaciones r : rs) {
+                if (r != null && r.getIDPasajero() != null && r.getIDPasajero().getIDPasajero() != null && r.getIDPasajero().getIDPasajero() == pasajeroId) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) { return false; }
     }
 }

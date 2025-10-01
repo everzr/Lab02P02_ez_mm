@@ -33,6 +33,12 @@
     <!-- Search and Filter Section -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <div>${error}</div>
+                </div>
+            </c:if>
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0"><i class="fas fa-search me-2"></i>Buscar y Filtrar Pasajeros</h5>
                 <div class="d-flex gap-2">

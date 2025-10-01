@@ -5,6 +5,8 @@ package servlets_sis;
 
 import Entity.ControllerVuelos;
 import Entity.Vuelos;
+import Controladores.ControladoraPersistencia;
+import Entity.DetalleReservacion;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 public class servlet_vuelos extends HttpServlet {
 
     ControllerVuelos cvuelos = new ControllerVuelos();
+    ControladoraPersistencia cp = new ControladoraPersistencia();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -59,10 +62,17 @@ public class servlet_vuelos extends HttpServlet {
                 request.getRequestDispatcher("Vistas/upd_vuelos.jsp").forward(request, response);
                 break;
             case "del":
-                this.cvuelos.eliminarVuelo(id);
-                consultaGeneral = this.cvuelos.traerListaVuelos();
-                request.setAttribute("vuelos", consultaGeneral);
-                request.getRequestDispatcher("Vistas/view_vuelos_simple.jsp").forward(request, response);
+                if (hasReservationsForFlight(id)) {
+                    request.setAttribute("error", "No se puede eliminar el vuelo porque tiene reservaciones asociadas.");
+                    consultaGeneral = this.cvuelos.traerListaVuelos();
+                    request.setAttribute("vuelos", consultaGeneral);
+                    request.getRequestDispatcher("Vistas/view_vuelos_simple.jsp").forward(request, response);
+                } else {
+                    this.cvuelos.eliminarVuelo(id);
+                    consultaGeneral = this.cvuelos.traerListaVuelos();
+                    request.setAttribute("vuelos", consultaGeneral);
+                    request.getRequestDispatcher("Vistas/view_vuelos_simple.jsp").forward(request, response);
+                }
                 break;
             case "add":
                 List<Vuelos> consultaUltimos = this.cvuelos.consultaUltimosVuelos(5, 1);
@@ -164,6 +174,19 @@ public class servlet_vuelos extends HttpServlet {
 
     private static String nullIfEmpty(String v) {
         return (v == null || v.trim().isEmpty()) ? null : v.trim();
+    }
+    
+    private boolean hasReservationsForFlight(int vueloId) {
+        try {
+            java.util.List<DetalleReservacion> dets = cp.traerListaDetalleReservaciones();
+            if (dets == null) return false;
+            for (DetalleReservacion d : dets) {
+                if (d != null && d.getIDVuelo() != null && d.getIDVuelo().getIDVuelo() != null && d.getIDVuelo().getIDVuelo() == vueloId) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) { return false; }
     }
     
     /**
