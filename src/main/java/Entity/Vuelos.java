@@ -119,6 +119,7 @@ public class Vuelos implements Serializable {
     public void setHoraLlegada(Date horaLlegada) { this.horaLlegada = horaLlegada; }
     public String getAvion() { return avion; }
     public void setAvion(String avion) { this.avion = avion; }
+    
     public Collection<DetalleReservacion> getDetalleReservacionCollection() { return detalleReservacionCollection; }
     public void setDetalleReservacionCollection(Collection<DetalleReservacion> detalleReservacionCollection) { this.detalleReservacionCollection = detalleReservacionCollection; }
 

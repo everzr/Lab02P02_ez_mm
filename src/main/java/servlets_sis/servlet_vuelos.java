@@ -34,11 +34,24 @@ public class servlet_vuelos extends HttpServlet {
 
         List<Vuelos> consultaGeneral = this.cvuelos.traerListaVuelos();
         if (accion == null) accion = "con"; // por defecto mostrar consulta
+        
+        // Parámetros de búsqueda
+        String searchOrigen = request.getParameter("origen");
+        String searchDestino = request.getParameter("destino");
+        String searchFecha = request.getParameter("fecha");
+        String searchTerm = request.getParameter("search");
+        
+        // Filtrar resultados si hay parámetros de búsqueda
+        if (searchOrigen != null || searchDestino != null || searchFecha != null || 
+            searchTerm != null) {
+            consultaGeneral = filtrarVuelos(consultaGeneral, searchOrigen, searchDestino, 
+                                          searchFecha, searchTerm);
+        }
 
         switch (accion) {
             case "con":
                 request.setAttribute("vuelos", consultaGeneral);
-                request.getRequestDispatcher("Vistas/view_vuelos.jsp").forward(request, response);
+                request.getRequestDispatcher("Vistas/view_vuelos_simple.jsp").forward(request, response);
                 break;
             case "mod":
                 Vuelos v = this.cvuelos.traerVuelo(id);
@@ -49,7 +62,7 @@ public class servlet_vuelos extends HttpServlet {
                 this.cvuelos.eliminarVuelo(id);
                 consultaGeneral = this.cvuelos.traerListaVuelos();
                 request.setAttribute("vuelos", consultaGeneral);
-                request.getRequestDispatcher("Vistas/view_vuelos.jsp").forward(request, response);
+                request.getRequestDispatcher("Vistas/view_vuelos_simple.jsp").forward(request, response);
                 break;
             case "add":
                 List<Vuelos> consultaUltimos = this.cvuelos.consultaUltimosVuelos(5, 1);
@@ -58,7 +71,7 @@ public class servlet_vuelos extends HttpServlet {
                 break;
             default:
                 request.setAttribute("vuelos", consultaGeneral);
-                request.getRequestDispatcher("Vistas/view_vuelos.jsp").forward(request, response);
+                request.getRequestDispatcher("Vistas/view_vuelos_simple.jsp").forward(request, response);
                 break;
         }
     }
@@ -121,11 +134,17 @@ public class servlet_vuelos extends HttpServlet {
 
         if (btnAgregar != null && !btnAgregar.isEmpty()) {
             this.cvuelos.crearVuelo(vuelo);
+            // Redirect to the simple view after successful creation
+            response.sendRedirect("servlet_vuelos?accion=con");
+            return;
         } else if (btnUpdate != null && !btnUpdate.isEmpty()) {
             int id = 0;
             try { id = Integer.parseInt(request.getParameter("txtid")); } catch (NumberFormatException ignored) {}
             if (id > 0) vuelo.setIDVuelo(id);
             this.cvuelos.editarVuelo(vuelo);
+            // Redirect to the simple view after successful update
+            response.sendRedirect("servlet_vuelos?accion=con");
+            return;
         }
 
         List<Vuelos> consultaUltimos = this.cvuelos.consultaUltimosVuelos(5, 1);
@@ -145,5 +164,73 @@ public class servlet_vuelos extends HttpServlet {
 
     private static String nullIfEmpty(String v) {
         return (v == null || v.trim().isEmpty()) ? null : v.trim();
+    }
+    
+    /**
+     * Método auxiliar para comparar fechas sin considerar la hora
+     */
+    private boolean compararFechas(java.util.Date fechaVuelo, String fechaBusqueda) {
+        if (fechaVuelo == null || fechaBusqueda == null || fechaBusqueda.trim().isEmpty()) {
+            return false;
+        }
+        
+        try {
+            // Convertir la fecha de búsqueda de String (yyyy-MM-dd) a LocalDate
+            LocalDate fechaBusquedaLocal = LocalDate.parse(fechaBusqueda.trim());
+            
+            // Convertir la fecha del vuelo a LocalDate para comparar solo la fecha (sin hora)
+            LocalDate fechaVueloLocal = fechaVuelo.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+            
+            return fechaBusquedaLocal.equals(fechaVueloLocal);
+        } catch (Exception e) {
+            System.err.println("Error comparando fechas: " + fechaBusqueda + " - " + e.getMessage());
+            return false;
+        }
+    }
+    
+    private List<Vuelos> filtrarVuelos(List<Vuelos> vuelos, String origen, String destino, 
+                                      String fecha, String searchTerm) {
+        if (vuelos == null) return vuelos;
+        
+        return vuelos.stream()
+            .filter(v -> {
+                // Filtro por origen
+                if (origen != null && !origen.trim().isEmpty()) {
+                    if (v.getOrigen() == null || 
+                        !v.getOrigen().toLowerCase().contains(origen.toLowerCase())) {
+                        return false;
+                    }
+                }
+                
+                // Filtro por destino
+                if (destino != null && !destino.trim().isEmpty()) {
+                    if (v.getDestino() == null || 
+                        !v.getDestino().toLowerCase().contains(destino.toLowerCase())) {
+                        return false;
+                    }
+                }
+                
+                // Filtro por fecha
+                if (fecha != null && !fecha.trim().isEmpty()) {
+                    if (!compararFechas(v.getFechaSalida(), fecha)) {
+                        return false;
+                    }
+                }
+                
+                // Búsqueda general
+                if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                    String term = searchTerm.toLowerCase();
+                    return (v.getNumeroVuelo() != null && v.getNumeroVuelo().toLowerCase().contains(term)) ||
+                           (v.getAerolinea() != null && v.getAerolinea().toLowerCase().contains(term)) ||
+                           (v.getOrigen() != null && v.getOrigen().toLowerCase().contains(term)) ||
+                           (v.getDestino() != null && v.getDestino().toLowerCase().contains(term)) ||
+                           (v.getAvion() != null && v.getAvion().toLowerCase().contains(term));
+                }
+                
+                return true;
+            })
+            .collect(java.util.stream.Collectors.toList());
     }
 }

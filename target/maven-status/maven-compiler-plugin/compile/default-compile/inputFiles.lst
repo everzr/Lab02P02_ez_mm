@@ -1,2 +1,24 @@
-C:\Users\EverZr\Desktop\CICLOVIII\DESAROLLO MULTIPLATAFORMA\Periodo2\Semana5\Lab02P02_ez_mm\src\main\java\com\mycompany\lab02p02_ez_mm\resources\JakartaEE8Resource.java
-C:\Users\EverZr\Desktop\CICLOVIII\DESAROLLO MULTIPLATAFORMA\Periodo2\Semana5\Lab02P02_ez_mm\src\main\java\com\mycompany\lab02p02_ez_mm\JakartaRestConfiguration.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\DetalleReservacion.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\VuelosJpaController.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\ControllerVuelos.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\exceptions\IllegalOrphanException.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\ReservacionesJpaController.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\ControllerDetalleReservacion.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\servlets_sis\servlet_vuelos.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\Reservaciones.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\servlets_sis\servlet_reservacion_rapida.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\servlets_sis\servlet_pasajeros.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\exceptions\NonexistentEntityException.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\ControladoraPersistencia.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\servlets_sis\servelet_detalle_reservacion.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\com\mycompany\lab02p02_ez_mm\JakartaRestConfiguration.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\DetalleReservacionJpaController.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\ControllerPasajeros.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\Pasajeros.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\Vuelos.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\exceptions\PreexistingEntityException.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\exceptions\RollbackFailureException.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Controladores\PasajerosJpaController.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\com\mycompany\lab02p02_ez_mm\resources\JakartaEE8Resource.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\Entity\ControllerReservaciones.java
+C:\Users\monza\OneDrive\Documentos\Lab02P02_ez_mm\src\main\java\servlets_sis\servelt_reservacion.java
